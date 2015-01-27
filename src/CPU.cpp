@@ -89,8 +89,20 @@ int CPU::execute()
     }
     case 0x21:
         break;
-    case 0x24:
+    case 0x24: // BIT zeropage
+    {
+        uint16_t addr = m->Read8(PC);
+        PC++;
+        uint8_t value = m->Read8(addr);
+        if((A & value) == 0)
+        {
+            P.Z = 0;
+        }
+        P.N = (value & 128) ? 1 : 0;
+        P.V = (value & 64) ? 1 : 0;
+        cycles = 3;
         break;
+    }
     case 0x25:
         break;
     case 0x26:
@@ -110,8 +122,20 @@ int CPU::execute()
     }
     case 0x2a:
         break;
-    case 0x2c:
+    case 0x2c: // BIT absolute
+    {
+        uint16_t addr = m->Read16(PC);
+        PC += 2;
+        uint8_t value = m->Read8(addr);
+        if((A & value) == 0)
+        {
+            P.Z = 0;
+        }
+        P.N = (value & 128) ? 1 : 0;
+        P.V = (value & 64) ? 1 : 0;
+        cycles = 4;
         break;
+    }
     case 0x2d:
         break;
     case 0x2e:
@@ -447,19 +471,32 @@ int CPU::execute()
         {
             P.C = 1;
         }
-        else if((int8_t)A == arg)
+        if((int8_t)A == arg)
         {
             P.Z = 1;
         }
-        else if((int8_t)A < arg)
+        if((int8_t)A < arg)
         {
             P.N = 1;
         }
         cycles = 3;
         break;
     }
-    case 0xc6:
+    case 0xc6: // DEC zeropage
+    {
+        uint16_t addr = m->Read8(PC);
+        PC++;
+        uint8_t value = m->Read8(addr);
+        value--;
+        if(value == 0)
+        {
+            P.Z = 1;
+        }
+        P.N = (value & 128) ? 1 : 0;
+        m->Write8(addr, value);
+        cycles = 5;
         break;
+    }
     case 0xc8: // INY
     {
         Y++;
@@ -477,11 +514,11 @@ int CPU::execute()
         {
             P.C = 1;
         }
-        else if((int8_t)A == arg)
+        if((int8_t)A == arg)
         {
             P.Z = 1;
         }
-        else if((int8_t)A < arg)
+        if((int8_t)A < arg)
         {
             P.N = 1;
         }
@@ -501,8 +538,21 @@ int CPU::execute()
         break;
     case 0xcd:
         break;
-    case 0xce:
+    case 0xce: // DEC absolute
+    {
+        uint16_t addr = m->Read16(PC);
+        PC += 2;
+        uint8_t value = m->Read8(addr);
+        value--;
+        if(value == 0)
+        {
+            P.Z = 1;
+        }
+        P.N = (value & 128) ? 1 : 0;
+        m->Write8(addr, value);
+        cycles = 6;
         break;
+    }
     case 0xd0: // BNE
     {
         int8_t offset = m->Read8(PC);
@@ -541,8 +591,21 @@ int CPU::execute()
         break;
     case 0xe5:
         break;
-    case 0xe6:
+    case 0xe6: // INC zeropage
+    {
+        uint16_t addr = m->Read8(PC);
+        PC++;
+        uint8_t value = m->Read8(addr);
+        value++;
+        if(value == 0)
+        {
+            P.Z = 1;
+        }
+        P.N = (value & 128) ? 1 : 0;
+        m->Write8(addr, value);
+        cycles = 5;
         break;
+    }
     case 0xe8: // INX
     {
         X++;
@@ -563,8 +626,21 @@ int CPU::execute()
         break;
     case 0xed:
         break;
-    case 0xee:
+    case 0xee: // INC absolute
+    {
+        uint16_t addr = m->Read16(PC);
+        PC += 2;
+        uint8_t value = m->Read8(addr);
+        value++;
+        if(value == 0)
+        {
+            P.Z = 1;
+        }
+        P.N = (value & 128) ? 1 : 0;
+        m->Write8(addr, value);
+        cycles = 6;
         break;
+    }
     case 0xf0: // BEQ
     {
         int8_t offset = m->Read8(PC);
@@ -581,7 +657,7 @@ int CPU::execute()
         break;
     case 0xf5:
         break;
-    case 0xf6:
+    case 0xf6: // INC zeropage,X
         break;
     case 0xf8: // SED
     {
@@ -598,7 +674,7 @@ int CPU::execute()
 
     default:
         printf("Unknown opcode at 0x%04x!\n", PC-1);
-        break; // unknown opcode
+        break;
     }
 
     return cycles;
