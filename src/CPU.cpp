@@ -41,8 +41,19 @@ int CPU::execute()
         break;
     case 0x09:
         break;
-    case 0x0a:
+    case 0x0a: // ASL accumulator
+    {
+        uint8_t newA = A << 1;
+        if(newA == 0)
+        {
+            P.Z = 1;
+        }
+        P.N = (newA & 128) ? 1 : 0;
+        P.C = (A & 128) ? 1 : 0;
+        A = newA;
+        cycles = 2;
         break;
+    }
     case 0x0d:
         break;
     case 0x0e:
@@ -182,8 +193,19 @@ int CPU::execute()
         break;
     case 0x49:
         break;
-    case 0x4a:
+    case 0x4a: // LSR accumulator
+    {
+        uint8_t newA = A >> 1;
+        if(newA == 0)
+        {
+            P.Z = 1;
+        }
+        P.N = (newA & 128) ? 1 : 0;
+        P.C = (A & 1) ? 1 : 0;
+        A = newA;
+        cycles = 2;
         break;
+    }
     case 0x4c: // JMP absolute
     {
         uint16_t newPC = m->Read16(PC);
