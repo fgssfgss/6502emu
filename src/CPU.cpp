@@ -9,6 +9,7 @@ CPU::CPU()
     S = 0xFD;
     P.I = 1;
     P.B = 3;
+    m = NULL;
 }
 
 void CPU::setPC(uint16_t value)
@@ -19,6 +20,13 @@ void CPU::setPC(uint16_t value)
 void CPU::setMemory(Memory *_m)
 {
     m = _m;
+}
+
+void CPU::printState()
+{
+    printf("A = (0x%04x) | X = (0x%04x) | Y = (0x%04x)\n", A, X, Y);
+    printf("PC = (0x%04x) | S = (0x%04x)\n", PC, S);
+    printf("FLAGS: N(%d) V(%d) D(%d) B(%d) I(%d) Z(%d) C(%d)\n", P.N, P.V, P.D, P.B, P.I, P.Z, P.C);
 }
 
 int CPU::execute()

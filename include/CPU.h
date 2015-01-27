@@ -11,6 +11,7 @@ class CPU
         virtual ~CPU();
         int execute(); //
         void setMemory(Memory *_m);
+        void printState();
         void setPC(uint16_t value);
     protected:
     private:
