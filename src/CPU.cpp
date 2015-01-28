@@ -197,8 +197,13 @@ int CPU::execute()
         break;
     case 0x46:
         break;
-    case 0x48:
+    case 0x48: // PHA
+    {
+        S--;
+        m->Write8(0x0100 + S, A);
+        cycles = 3;
         break;
+    }
     case 0x49:
         break;
     case 0x4a: // LSR accumulator
@@ -269,8 +274,13 @@ int CPU::execute()
         break;
     case 0x66:
         break;
-    case 0x68:
+    case 0x68: // PLA
+    {
+        A = m->Read8(0x0100 + S);
+        S++;
+        cycles = 3;
         break;
+    }
     case 0x69:
         break;
     case 0x6a:
@@ -313,8 +323,14 @@ int CPU::execute()
         break;
     case 0x81:
         break;
-    case 0x84:
+    case 0x84: // STY zeropage
+    {
+        uint16_t addr = m->Read8(PC);
+        PC++;
+        m->Write8(addr, Y);
+        cycles = 3;
         break;
+    }
     case 0x85: // STA zeropage
     {
         uint16_t addr = m->Read8(PC);
@@ -323,8 +339,14 @@ int CPU::execute()
         cycles = 3;
         break;
     }
-    case 0x86:
+    case 0x86: // STX zeropage
+    {
+        uint16_t addr = m->Read8(PC);
+        PC++;
+        m->Write8(addr, X);
+        cycles = 3;
         break;
+    }
     case 0x88: // DEY
     {
         Y--;
@@ -394,8 +416,17 @@ int CPU::execute()
         break;
     case 0xa2:
         break;
-    case 0xa4:
+    case 0xa4: // LDY zeropage
+    {
+        uint16_t addr = m->Read8(PC);
+        PC++;
+        Y = m->Read8(addr);
+        if(Y == 0)
+            P.Z = 1;
+        P.N = (Y & 128) ? 1 : 0;
+        cycles = 3;
         break;
+    }
     case 0xa5: // LDA zeropage
     {
         uint16_t addr = m->Read8(PC);
@@ -407,8 +438,17 @@ int CPU::execute()
         cycles = 3;
         break;
     }
-    case 0xa6:
+    case 0xa6: // LDX zeropage
+    {
+        uint16_t addr = m->Read8(PC);
+        PC++;
+        X = m->Read8(addr);
+        if(X == 0)
+            P.Z = 1;
+        P.N = (X & 128) ? 1 : 0;
+        cycles = 3;
         break;
+    }
     case 0xa8: // TAY
     {
         Y = A;
@@ -437,12 +477,39 @@ int CPU::execute()
         cycles = 2;
         break;
     }
-    case 0xac:
+    case 0xac: // LDY absolute
+    {
+        uint16_t addr = m->Read16(PC);
+        PC += 2;
+        Y = m->Read8(addr);
+        if(Y == 0)
+            P.Z = 1;
+        P.N = (Y & 128) ? 1 : 0;
+        cycles = 4;
         break;
-    case 0xad:
+    }
+    case 0xad: // LDA absolute
+    {
+        uint16_t addr = m->Read16(PC);
+        PC += 2;
+        A = m->Read8(addr);
+        if(A == 0)
+            P.Z = 1;
+        P.N = (A & 128) ? 1 : 0;
+        cycles = 4;
         break;
-    case 0xae:
+    }
+    case 0xae: // LDX absolute
+    {
+        uint16_t addr = m->Read16(PC);
+        PC += 2;
+        X = m->Read8(addr);
+        if(X == 0)
+            P.Z = 1;
+        P.N = (X & 128) ? 1 : 0;
+        cycles = 4;
         break;
+    }
     case 0xb0: // BCS
     {
         int8_t offset = m->Read8(PC);
