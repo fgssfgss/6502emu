@@ -22,6 +22,40 @@ void CPU::setMemory(Memory *_m)
     m = _m;
 }
 
+uint8_t CPU::immediate_addr() // read only argument of operation
+{
+    return m->Read8(PC++);
+}
+
+int8_t CPU::relative_addr()
+{
+    return m->Read8(PC++); // like immediate, but int8_t
+}
+
+uint8_t CPU::zeropage_addr() // zeropage addressation
+{
+    uint16_t addr = m->Read8(PC++);
+    return m->Read8(addr);
+}
+
+uint16_t CPU::zeropage_addr_j() // zeropage which return address in memory
+{
+    return (uint16_t)m->Read8(PC++);
+}
+
+uint16_t CPU::absolute_addr_j() // read only address, needed for jsr, jmp
+{
+    PC += 2;
+    return m->Read16(PC - 2);
+}
+
+uint8_t CPU::absolute_addr() // read address arg and read value by it
+{
+    uint16_t addr = m->Read16(PC);
+    PC += 2;
+    return m->Read8(addr);
+}
+
 void CPU::printState()
 {
     printf("A = (0x%04x) | X = (0x%04x) | Y = (0x%04x)\n", A, X, Y);
@@ -47,8 +81,16 @@ int CPU::execute()
         break;
     case 0x08:
         break;
-    case 0x09:
+    case 0x09: // ORA immediate
+    {
+        uint8_t arg = immediate_addr();
+        A = A | arg;
+        if(A == 0)
+            P.Z = 1;
+        P.N = (A & 128) ? 1 : 0;
+        cycles = 2;
         break;
+    }
     case 0x0a: // ASL accumulator
     {
         uint8_t newA = A << 1;
@@ -68,13 +110,12 @@ int CPU::execute()
         break;
     case 0x10: // BPL
     {
-        int8_t offset = m->Read8(PC);
-        PC++;
+        int8_t offset = relative_addr();
         cycles = 2;
         if(P.N == 0)
         {
             cycles += 1;
-            PC = PC + offset; // TODO: check crosspage
+            PC = PC + offset; // TODO: check crosspage and add +1 cycle if needed
         }
         break;
     }
@@ -98,8 +139,7 @@ int CPU::execute()
         break;
     case 0x20: // JSR
     {
-        uint16_t newPC = m->Read16(PC);
-        PC += 2;
+        uint16_t newPC = absolute_addr_j();
         S -= 2;
         m->Write16(0x0100 + S, PC);
         PC = newPC;
@@ -110,9 +150,7 @@ int CPU::execute()
         break;
     case 0x24: // BIT zeropage
     {
-        uint16_t addr = m->Read8(PC);
-        PC++;
-        uint8_t value = m->Read8(addr);
+        uint8_t value = zeropage_addr();
         if((A & value) == 0)
         {
             P.Z = 0;
@@ -130,8 +168,7 @@ int CPU::execute()
         break;
     case 0x29: // AND immediate
     {
-        uint8_t arg = m->Read8(PC);
-        PC++;
+        uint8_t arg = immediate_addr();
         A = A & arg;
         if(A == 0)
             P.Z = 1;
@@ -143,9 +180,7 @@ int CPU::execute()
         break;
     case 0x2c: // BIT absolute
     {
-        uint16_t addr = m->Read16(PC);
-        PC += 2;
-        uint8_t value = m->Read8(addr);
+        uint8_t value = absolute_addr();
         if((A & value) == 0)
         {
             P.Z = 0;
@@ -161,8 +196,7 @@ int CPU::execute()
         break;
     case 0x30: // BMI
     {
-        int8_t offset = m->Read8(PC);
-        PC++;
+        int8_t offset = relative_addr();
         cycles = 2;
         if(P.N == 1)
         {
@@ -204,8 +238,16 @@ int CPU::execute()
         cycles = 3;
         break;
     }
-    case 0x49:
+    case 0x49: // EOR immediate
+    {
+        uint8_t arg = immediate_addr();
+        A = A ^ arg;
+        if(A == 0)
+            P.Z = 1;
+        P.N = (A & 128) ? 1 : 0;
+        cycles = 2;
         break;
+    }
     case 0x4a: // LSR accumulator
     {
         uint8_t newA = A >> 1;
@@ -221,7 +263,7 @@ int CPU::execute()
     }
     case 0x4c: // JMP absolute
     {
-        uint16_t newPC = m->Read16(PC);
+        uint16_t newPC = absolute_addr_j();
         PC = newPC;
         cycles = 3;
         break;
@@ -232,8 +274,7 @@ int CPU::execute()
         break;
     case 0x50: // BVC
     {
-        int8_t offset = m->Read8(PC);
-        PC++;
+        int8_t offset = relative_addr();
         cycles = 2;
         if(P.V == 0)
         {
@@ -270,8 +311,10 @@ int CPU::execute()
     }
     case 0x61:
         break;
-    case 0x65:
+    case 0x65: // ADC zeropage
+    {
         break;
+    }
     case 0x66:
         break;
     case 0x68: // PLA
@@ -281,20 +324,23 @@ int CPU::execute()
         cycles = 3;
         break;
     }
-    case 0x69:
+    case 0x69: // ADC immediate
+    {
         break;
+    }
     case 0x6a:
         break;
     case 0x6c:
         break;
-    case 0x6d:
+    case 0x6d: // ADC absolute
+    {
         break;
+    }
     case 0x6e:
         break;
     case 0x70: // BVS
     {
-        int8_t offset = m->Read8(PC);
-        PC++;
+        int8_t offset = relative_addr();
         cycles = 2;
         if(P.V == 1)
         {
@@ -325,24 +371,21 @@ int CPU::execute()
         break;
     case 0x84: // STY zeropage
     {
-        uint16_t addr = m->Read8(PC);
-        PC++;
+        uint16_t addr = zeropage_addr_j();
         m->Write8(addr, Y);
         cycles = 3;
         break;
     }
     case 0x85: // STA zeropage
     {
-        uint16_t addr = m->Read8(PC);
-        PC++;
+        uint16_t addr = zeropage_addr_j();
         m->Write8(addr, A);
         cycles = 3;
         break;
     }
     case 0x86: // STX zeropage
     {
-        uint16_t addr = m->Read8(PC);
-        PC++;
+        uint16_t addr = zeropage_addr_j();
         m->Write8(addr, X);
         cycles = 3;
         break;
@@ -373,8 +416,7 @@ int CPU::execute()
         break;
     case 0x90: // BCC
     {
-        int8_t offset = m->Read8(PC);
-        PC++;
+        int8_t offset = relative_addr();
         cycles = 2;
         if(P.C == 0)
         {
@@ -418,9 +460,7 @@ int CPU::execute()
         break;
     case 0xa4: // LDY zeropage
     {
-        uint16_t addr = m->Read8(PC);
-        PC++;
-        Y = m->Read8(addr);
+        Y = zeropage_addr();
         if(Y == 0)
             P.Z = 1;
         P.N = (Y & 128) ? 1 : 0;
@@ -429,9 +469,7 @@ int CPU::execute()
     }
     case 0xa5: // LDA zeropage
     {
-        uint16_t addr = m->Read8(PC);
-        PC++;
-        A = m->Read8(addr);
+        A = zeropage_addr();
         if(A == 0)
             P.Z = 1;
         P.N = (A & 128) ? 1 : 0;
@@ -440,9 +478,7 @@ int CPU::execute()
     }
     case 0xa6: // LDX zeropage
     {
-        uint16_t addr = m->Read8(PC);
-        PC++;
-        X = m->Read8(addr);
+        X = zeropage_addr();
         if(X == 0)
             P.Z = 1;
         P.N = (X & 128) ? 1 : 0;
@@ -460,8 +496,7 @@ int CPU::execute()
     }
     case 0xa9: // LDA Immediate
     {
-        A = m->Read8(PC);
-        PC++;
+        A = immediate_addr();
         if(A == 0)
             P.Z = 1;
         P.N = (A & 128) ? 1 : 0;
@@ -479,9 +514,7 @@ int CPU::execute()
     }
     case 0xac: // LDY absolute
     {
-        uint16_t addr = m->Read16(PC);
-        PC += 2;
-        Y = m->Read8(addr);
+        Y = absolute_addr();
         if(Y == 0)
             P.Z = 1;
         P.N = (Y & 128) ? 1 : 0;
@@ -490,9 +523,7 @@ int CPU::execute()
     }
     case 0xad: // LDA absolute
     {
-        uint16_t addr = m->Read16(PC);
-        PC += 2;
-        A = m->Read8(addr);
+        A = absolute_addr();
         if(A == 0)
             P.Z = 1;
         P.N = (A & 128) ? 1 : 0;
@@ -501,9 +532,7 @@ int CPU::execute()
     }
     case 0xae: // LDX absolute
     {
-        uint16_t addr = m->Read16(PC);
-        PC += 2;
-        X = m->Read8(addr);
+        X = absolute_addr();
         if(X == 0)
             P.Z = 1;
         P.N = (X & 128) ? 1 : 0;
@@ -512,8 +541,7 @@ int CPU::execute()
     }
     case 0xb0: // BCS
     {
-        int8_t offset = m->Read8(PC);
-        PC++;
+        int8_t offset = relative_addr();
         cycles = 2;
         if(P.C == 1)
         {
@@ -561,9 +589,7 @@ int CPU::execute()
         break;
     case 0xc5: // CMP zeropage
     {
-        uint16_t addr = m->Read8(PC);
-        PC++;
-        int8_t arg = m->Read8(addr);
+        int8_t arg = (int8_t)zeropage_addr();
         if((int8_t)A >= arg)
         {
             P.C = 1;
@@ -581,8 +607,7 @@ int CPU::execute()
     }
     case 0xc6: // DEC zeropage
     {
-        uint16_t addr = m->Read8(PC);
-        PC++;
+        uint16_t addr = zeropage_addr_j();
         uint8_t value = m->Read8(addr);
         value--;
         if(value == 0)
@@ -605,8 +630,7 @@ int CPU::execute()
     }
     case 0xc9: // CMP immediate
     {
-        int8_t arg = m->Read8(PC);
-        PC++;
+        int8_t arg = (int8_t)immediate_addr();
         if((int8_t)A >= arg)
         {
             P.C = 1;
@@ -637,8 +661,7 @@ int CPU::execute()
         break;
     case 0xce: // DEC absolute
     {
-        uint16_t addr = m->Read16(PC);
-        PC += 2;
+        uint16_t addr = absolute_addr_j();
         uint8_t value = m->Read8(addr);
         value--;
         if(value == 0)
@@ -652,8 +675,7 @@ int CPU::execute()
     }
     case 0xd0: // BNE
     {
-        int8_t offset = m->Read8(PC);
-        PC++;
+        int8_t offset = relative_addr();
         cycles = 2;
         if(P.Z == 0)
         {
@@ -690,8 +712,7 @@ int CPU::execute()
         break;
     case 0xe6: // INC zeropage
     {
-        uint16_t addr = m->Read8(PC);
-        PC++;
+        uint16_t addr = zeropage_addr_j();
         uint8_t value = m->Read8(addr);
         value++;
         if(value == 0)
@@ -725,8 +746,7 @@ int CPU::execute()
         break;
     case 0xee: // INC absolute
     {
-        uint16_t addr = m->Read16(PC);
-        PC += 2;
+        uint16_t addr = absolute_addr_j();
         uint8_t value = m->Read8(addr);
         value++;
         if(value == 0)
@@ -740,8 +760,7 @@ int CPU::execute()
     }
     case 0xf0: // BEQ
     {
-        int8_t offset = m->Read8(PC);
-        PC++;
+        int8_t offset = relative_addr();
         cycles = 2;
         if(P.Z == 1)
         {

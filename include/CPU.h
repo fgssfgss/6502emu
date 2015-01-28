@@ -17,6 +17,13 @@ class CPU
     private:
         Memory *m;
 
+        uint8_t immediate_addr();
+        int8_t relative_addr();
+        uint8_t zeropage_addr();
+        uint16_t zeropage_addr_j();
+        uint16_t absolute_addr_j();
+        uint8_t absolute_addr();
+
         uint16_t PC;
         uint8_t A;
         uint8_t X;
