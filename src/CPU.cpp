@@ -128,22 +128,28 @@ uint8_t CPU::absolute_y_addr()
 
 uint8_t CPU::pop8()
 {
-    return 0;
+    uint8_t data = m->Read8(0x0100 + S);
+    S++;
+    return data;
 }
 
 uint16_t CPU::pop16()
 {
-    return 0;
+    uint16_t data = m->Read16(0x0100 + S);
+    S += 2;
+    return data;
 }
 
 void CPU::push8(uint8_t data)
 {
-
+    S--;
+    m->Write8(0x0100 + S, data);
 }
 
 void CPU::push16(uint16_t data)
 {
-
+    S -= 2;
+    m->Write16(0x0100 + S, data);
 }
 
 
@@ -234,8 +240,7 @@ int CPU::execute()
     case 0x20: // JSR
     {
         uint16_t newPC = absolute_addr_j();
-        S -= 2;
-        m->Write16(0x0100 + S, PC);
+        push16(PC);
         PC = newPC;
         cycles = 6;
         break;
@@ -327,8 +332,7 @@ int CPU::execute()
         break;
     case 0x48: // PHA
     {
-        S--;
-        m->Write8(0x0100 + S, A);
+        push8(A);
         cycles = 3;
         break;
     }
@@ -397,9 +401,8 @@ int CPU::execute()
         break;
     case 0x60: // RTS
     {
-        uint16_t newPC = m->Read16(0x0100 + S);
+        uint16_t newPC = pop16();
         PC = newPC;
-        S += 2;
         cycles = 6;
         break;
     }
@@ -413,8 +416,7 @@ int CPU::execute()
         break;
     case 0x68: // PLA
     {
-        A = m->Read8(0x0100 + S);
-        S++;
+        A = pop8();
         cycles = 3;
         break;
     }
