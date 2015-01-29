@@ -23,6 +23,19 @@ class CPU
         uint16_t zeropage_addr_j();
         uint16_t absolute_addr_j();
         uint8_t absolute_addr();
+        uint8_t zeropage_x_addr();
+        uint16_t zeropage_x_addr_j();
+        uint8_t zeropage_y_addr();
+        uint16_t zeropage_y_addr_j();
+        uint16_t absolute_x_addr_j();
+        uint8_t absolute_x_addr();
+        uint16_t absolute_y_addr_j();
+        uint8_t absolute_y_addr();
+
+        uint8_t pop8();
+        uint16_t pop16();
+        void push8(uint8_t data);
+        void push16(uint16_t data);
 
         uint16_t PC;
         uint8_t A;

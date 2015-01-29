@@ -22,6 +22,8 @@ void CPU::setMemory(Memory *_m)
     m = _m;
 }
 
+/* Addressing routines */
+
 uint8_t CPU::immediate_addr() // read only argument of operation
 {
     return m->Read8(PC++);
@@ -32,7 +34,7 @@ int8_t CPU::relative_addr()
     return m->Read8(PC++); // like immediate, but int8_t
 }
 
-uint8_t CPU::zeropage_addr() // zeropage addressation
+uint8_t CPU::zeropage_addr() // zeropage addressing
 {
     uint16_t addr = m->Read8(PC++);
     return m->Read8(addr);
@@ -55,6 +57,98 @@ uint8_t CPU::absolute_addr() // read address arg and read value by it
     PC += 2;
     return m->Read8(addr);
 }
+
+uint8_t CPU::zeropage_x_addr()
+{
+    uint16_t addr = m->Read8(PC++);
+    addr += X;
+    addr &= 0xff;
+    return m->Read8(addr);
+}
+
+uint16_t CPU::zeropage_x_addr_j()
+{
+    uint16_t addr = m->Read8(PC++);
+    addr += X;
+    addr &= 0xff;
+    return addr;
+}
+
+uint8_t CPU::zeropage_y_addr()
+{
+    uint16_t addr = m->Read8(PC++);
+    addr += Y;
+    addr &= 0xff;
+    return m->Read8(addr);
+}
+
+uint16_t CPU::zeropage_y_addr_j()
+{
+    uint16_t addr = m->Read8(PC++);
+    addr += Y;
+    addr &= 0xff;
+    return addr;
+}
+
+uint16_t CPU::absolute_x_addr_j()
+{
+    uint16_t addr = m->Read16(PC);
+    PC += 2;
+    addr += X;
+    return addr;
+}
+
+uint8_t CPU::absolute_x_addr()
+{
+    uint16_t addr = m->Read16(PC);
+    PC += 2;
+    addr += X;
+    return m->Read8(addr);
+}
+
+uint16_t CPU::absolute_y_addr_j()
+{
+    uint16_t addr = m->Read16(PC);
+    PC += 2;
+    addr += Y;
+    return addr;
+}
+
+uint8_t CPU::absolute_y_addr()
+{
+    uint16_t addr = m->Read16(PC);
+    PC += 2;
+    addr += Y;
+    return m->Read8(addr);
+}
+
+/* Addressing routines end */
+
+/* Stack routines */
+
+uint8_t CPU::pop8()
+{
+    return 0;
+}
+
+uint16_t CPU::pop16()
+{
+    return 0;
+}
+
+void CPU::push8(uint8_t data)
+{
+
+}
+
+void CPU::push16(uint16_t data)
+{
+
+}
+
+
+/* Stack routines end */
+
 
 void CPU::printState()
 {
