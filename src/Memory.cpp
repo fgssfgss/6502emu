@@ -1,9 +1,14 @@
 #include "Memory.h"
 
+
 Memory::Memory()
 {
+    ram = new char[size];
+    memset((void *)ram, 0, size);
     rom = new ROM();
     //rom->loadFromFile();
+    ram[0x0600] = 0xba;
+    ram[0x0601] = 0xFF;
 }
 
 uint8_t Memory::Read8(uint16_t addr)

@@ -2,6 +2,7 @@
 #define MEMORY_H
 #include <cstdint>
 #include <ROM.h>
+#include <cstring>
 
 class Memory
 {
@@ -14,7 +15,8 @@ class Memory
         void Write16(uint16_t addr, uint16_t value);
     protected:
     private:
-        char ram[2048]; // 2048 bytes
+        const size_t size = 2048;
+        char *ram; // 2048 bytes
         ROM *rom;
 };
 

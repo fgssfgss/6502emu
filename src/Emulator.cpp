@@ -7,7 +7,8 @@ Emulator::Emulator()
 int Emulator::run()
 {
     cpu.setMemory(&mem);
-
+    cpu.setRunningState(true);
+    cpu.mainLoop(true);
     return 0;
 }
 

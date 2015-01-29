@@ -13,9 +13,12 @@ class CPU
         void setMemory(Memory *_m);
         void printState();
         void setPC(uint16_t value);
+        void mainLoop(bool debug);
+        void setRunningState(bool state);
     protected:
     private:
         Memory *m;
+        bool isRunning;
 
         uint8_t immediate_addr();
         int8_t relative_addr();

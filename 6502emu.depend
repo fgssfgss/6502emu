@@ -7,23 +7,24 @@
 	<CPU.h>
 	<Memory.h>
 
-1422528494 source:e:\prog\6502emu\src\cpu.cpp
+1422555551 source:e:\prog\6502emu\src\cpu.cpp
 	"CPU.h"
 
-1422527040 e:\prog\6502emu\include\cpu.h
+1422555199 e:\prog\6502emu\include\cpu.h
 	<cstdint>
 	<Memory.h>
 	<cstdio>
 
-1422289057 source:e:\prog\6502emu\src\emulator.cpp
+1422555136 source:e:\prog\6502emu\src\emulator.cpp
 	"Emulator.h"
 
-1422351249 source:e:\prog\6502emu\src\memory.cpp
+1422556306 source:e:\prog\6502emu\src\memory.cpp
 	"Memory.h"
 
-1422287475 e:\prog\6502emu\include\memory.h
+1422542757 e:\prog\6502emu\include\memory.h
 	<cstdint>
 	<ROM.h>
+	<cstring>
 
 1422285825 e:\prog\6502emu\include\rom.h
 

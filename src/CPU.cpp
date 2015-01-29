@@ -2,7 +2,7 @@
 
 CPU::CPU()
 {
-    PC = 0;
+    PC = 0x0600;
     A = 0;
     X = 0;
     Y = 0;
@@ -20,6 +20,25 @@ void CPU::setPC(uint16_t value)
 void CPU::setMemory(Memory *_m)
 {
     m = _m;
+}
+
+void CPU::setRunningState(bool state)
+{
+    isRunning = state;
+}
+
+void CPU::mainLoop(bool debug = false)
+{
+    while(isRunning)
+    {
+        if(debug)
+            printf("insn %02x\n", m->Read8(PC));
+
+        execute();
+
+        if(debug)
+            printState();
+    }
 }
 
 /* Addressing routines */
@@ -158,8 +177,8 @@ void CPU::push16(uint16_t data)
 
 void CPU::printState()
 {
-    printf("A = (0x%04x) | X = (0x%04x) | Y = (0x%04x)\n", A, X, Y);
-    printf("PC = (0x%04x) | S = (0x%04x)\n", PC, S);
+    printf("A = (0x%02x) | X = (0x%02x) | Y = (0x%02x)\n", A, X, Y);
+    printf("PC = (0x%04x) | S = (0x%02x)\n", PC, S);
     printf("FLAGS: N(%d) V(%d) D(%d) B(%d) I(%d) Z(%d) C(%d)\n", P.N, P.V, P.D, P.B, P.I, P.Z, P.C);
 }
 
@@ -410,6 +429,18 @@ int CPU::execute()
         break;
     case 0x65: // ADC zeropage
     {
+        uint8_t value = zeropage_addr();
+        if(P.D == 0)
+        {
+            uint16_t result = A + value + P.C;
+            A = result & 0xFF;
+            if(A == 0)
+                P.Z = 1;
+            P.N = (result & 128) ? 1 : 0;
+            P.V = (((int16_t)result > 0xFF) || ((int16_t)result < 0)) ? 1 : 0;
+            P.C = ((result & 256) && P.V) ? 1 : 0;
+        }
+        cycles = 3;
         break;
     }
     case 0x66:
@@ -422,6 +453,18 @@ int CPU::execute()
     }
     case 0x69: // ADC immediate
     {
+        uint8_t value = immediate_addr();
+        if(P.D == 0)
+        {
+            uint16_t result = A + value + P.C;
+            A = result & 0xFF;
+            if(A == 0)
+                P.Z = 1;
+            P.N = (result & 128) ? 1 : 0;
+            P.V = (((int16_t)result > 0xFF) || ((int16_t)result < 0)) ? 1 : 0;
+            P.C = ((result & 256) && P.V) ? 1 : 0;
+        }
+        cycles = 2;
         break;
     }
     case 0x6a:
@@ -430,6 +473,18 @@ int CPU::execute()
         break;
     case 0x6d: // ADC absolute
     {
+        uint8_t value = absolute_addr();
+        if(P.D == 0)
+        {
+            uint16_t result = A + value + P.C;
+            A = result & 0xFF;
+            if(A == 0)
+                P.Z = 1;
+            P.N = (result & 128) ? 1 : 0;
+            P.V = (((int16_t)result > 0xFF) || ((int16_t)result < 0)) ? 1 : 0;
+            P.C = ((result & 256) && P.V) ? 1 : 0;
+        }
+        cycles = 4;
         break;
     }
     case 0x6e:
@@ -886,6 +941,7 @@ int CPU::execute()
 
     default:
         printf("Unknown opcode at 0x%04x!\n", PC-1);
+        isRunning = false; // unknown opcode will stop CPU
         break;
     }
 
