@@ -884,8 +884,22 @@ int CPU::execute()
         cycles = 2;
         break;
     }
-    case 0xe9:
+    case 0xe9: // SBC immediate
+    {
+        uint8_t value = immediate_addr();
+        if(P.D == 0)
+        {
+            uint16_t result = A - value - (1 - P.C);
+            A = result & 0xFF;
+            if(A == 0)
+                P.Z = 1;
+            P.N = (result & 128) ? 1 : 0;
+            P.V = (((int16_t)result > 0xFF) || ((int16_t)result < 0)) ? 1 : 0; // shiiiiiiit
+            P.C = ((result & 256) && P.V) ? 1 : 0; // oh my god
+        }
+        cycles = 2;
         break;
+    }
     case 0xea: // NOP
     {
         cycles = 2;
@@ -893,8 +907,22 @@ int CPU::execute()
     }
     case 0xec:
         break;
-    case 0xed:
+    case 0xed: // SBC absolute
+    {
+        uint8_t value = absolute_addr();
+        if(P.D == 0)
+        {
+            uint16_t result = A - value - (1 - P.C);
+            A = result & 0xFF;
+            if(A == 0)
+                P.Z = 1;
+            P.N = (result & 128) ? 1 : 0;
+            P.V = (((int16_t)result > 0xFF) || ((int16_t)result < 0)) ? 1 : 0; // i think this is incorrect
+            P.C = ((result & 256) && P.V) ? 1 : 0; // and this too
+        }
+        cycles = 2;
         break;
+    }
     case 0xee: // INC absolute
     {
         uint16_t addr = absolute_addr_j();
