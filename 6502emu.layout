@@ -8,12 +8,12 @@
 	</File>
 	<File name="include\CPU.h" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="339" topLine="6" />
+			<Cursor1 position="321" topLine="2" />
 		</Cursor>
 	</File>
-	<File name="src\Emulator.cpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\ROM.cpp" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="151" topLine="0" />
+			<Cursor1 position="0" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="include\Emulator.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -28,22 +28,22 @@
 	</File>
 	<File name="src\CPU.cpp" open="1" top="1" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="615" topLine="777" />
-		</Cursor>
-	</File>
-	<File name="src\Memory.cpp" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1056" topLine="0" />
+			<Cursor1 position="17544" topLine="878" />
 		</Cursor>
 	</File>
 	<File name="include\Memory.h" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="76" topLine="0" />
+			<Cursor1 position="92" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="src\ROM.cpp" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\Emulator.cpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="0" topLine="0" />
+			<Cursor1 position="135" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src\Memory.cpp" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="131" topLine="54" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

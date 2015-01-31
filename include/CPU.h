@@ -34,6 +34,10 @@ class CPU
         uint8_t absolute_x_addr();
         uint16_t absolute_y_addr_j();
         uint8_t absolute_y_addr();
+        uint8_t indexed_indirect_addr();
+        uint8_t indirect_indexed_addr();
+        uint16_t indexed_indirect_addr_j();
+        uint16_t indirect_indexed_addr_j();
 
         uint8_t pop8();
         uint16_t pop16();

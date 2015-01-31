@@ -141,6 +141,41 @@ uint8_t CPU::absolute_y_addr()
     return m->Read8(addr);
 }
 
+uint8_t CPU::indexed_indirect_addr() // (MEM, X)
+{
+    uint16_t addr = m->Read8(PC++);
+    addr += X;
+    addr &= 0xFF;
+    uint16_t new_addr = m->Read16(addr);
+    return m->Read8(new_addr);
+}
+
+uint8_t CPU::indirect_indexed_addr() // (MEM), Y
+{
+    uint16_t addr = m->Read8(PC++);
+    uint16_t new_addr = m->Read16(addr);
+    new_addr += Y;
+    return m->Read8(new_addr);
+}
+
+uint16_t CPU::indexed_indirect_addr_j() // (MEM, X)
+{
+    uint16_t addr = m->Read8(PC++);
+    addr += X;
+    addr &= 0xFF;
+    uint16_t new_addr = m->Read16(addr);
+    return new_addr;
+}
+
+uint16_t CPU::indirect_indexed_addr_j() // (MEM), Y
+{
+    uint16_t addr = m->Read8(PC++);
+    uint16_t new_addr = m->Read16(addr);
+    new_addr += Y;
+    return new_addr;
+}
+
+
 /* Addressing routines end */
 
 /* Stack routines */
@@ -191,7 +226,10 @@ int CPU::execute()
     switch(instr)
     {
     case 0x00: // BRK
+    {
+        isRunning = false; // simply stop our CPU
         break;
+    }
     case 0x01:
         break;
     case 0x05:
@@ -518,8 +556,13 @@ int CPU::execute()
         break;
     case 0x7e:
         break;
-    case 0x81:
+    case 0x81: // STA (indirect, X)
+    {
+        uint16_t addr = indexed_indirect_addr_j();
+        m->Write8(addr, A);
+        cycles = 6;
         break;
+    }
     case 0x84: // STY zeropage
     {
         uint16_t addr = zeropage_addr_j();
@@ -576,8 +619,13 @@ int CPU::execute()
         }
         break;
     }
-    case 0x91:
+    case 0x91: // STA (indirect), Y
+    {
+        uint16_t addr = indirect_indexed_addr_j();
+        m->Write8(addr, A);
+        cycles = 6;
         break;
+    }
     case 0x94:
         break;
     case 0x95:

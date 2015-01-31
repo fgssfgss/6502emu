@@ -6,14 +6,7 @@ Memory::Memory()
     ram = new char[size];
     memset((void *)ram, 0xFF, size);
     rom = new ROM();
-    ram[0x0600] = 0xa2; // LDX #$08
-    ram[0x0601] = 0x09;
 
-    ram[0x0602] = 0xca; // DEX
-
-    ram[0x0603] = 0x4c; // JMP $0602
-    ram[0x0604] = 0x02;
-    ram[0x0605] = 0x06;
 }
 
 uint8_t Memory::Read8(uint16_t addr)
