@@ -1,4 +1,4 @@
-#include "Emulator.h"
+#include <Emulator.h>
 
 Emulator::Emulator()
 {
