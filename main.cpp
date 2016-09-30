@@ -3,8 +3,7 @@
 
 using namespace std;
 
-int main()
-{
+int main() {
     Emulator *emu = new Emulator();
     int ret = emu->run();
     delete emu;

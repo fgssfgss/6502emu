@@ -1,17 +1,14 @@
 #include <Emulator.h>
 
-Emulator::Emulator()
-{
+Emulator::Emulator() {
 }
 
-int Emulator::run()
-{
+int Emulator::run() {
     cpu.setMemory(&mem);
     cpu.setRunningState(true);
     cpu.mainLoop(true);
     return 0;
 }
 
-Emulator::~Emulator()
-{
+Emulator::~Emulator() {
 }
